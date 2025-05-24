@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/todo.dart';
 import '../services/todo_service.dart';
+import 'refined_confirmation_modal.dart';
 
 /// iOS/macOS風TODO追加・編集モーダル
 class IOSStyleTodoModal extends StatefulWidget {
@@ -117,69 +118,98 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
 
   Widget _buildModalContent(bool isDark) {
     return Container(
-      width: 400,
-      margin: const EdgeInsets.all(32),
+      width: 380,
+      margin: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-        borderRadius: BorderRadius.circular(20), // iOS風の角丸
+        color: isDark 
+            ? const Color(0xFF1C1C1E).withOpacity(0.95) 
+            : Colors.white.withOpacity(0.98),
+        borderRadius: BorderRadius.circular(16), // より控えめな角丸
+        border: Border.all(
+          color: isDark 
+              ? Colors.white.withOpacity(0.1) 
+              : Colors.black.withOpacity(0.05),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
+            color: Colors.black.withOpacity(isDark ? 0.6 : 0.15),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 80,
+            offset: const Offset(0, 40),
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ヘッダー
-          _buildHeader(isDark),
-          
-          // コンテンツ
-          _buildContent(isDark),
-          
-          // フッター（ボタン）
-          _buildFooter(isDark),
-        ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ヘッダー
+            _buildRefinedHeader(isDark),
+            
+            // コンテンツ
+            _buildRefinedContent(isDark),
+            
+            // フッター（ボタン）
+            _buildRefinedFooter(isDark),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildRefinedHeader(bool isDark) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+      decoration: BoxDecoration(
+        color: isDark 
+            ? Colors.white.withOpacity(0.01)
+            : Colors.black.withOpacity(0.005),
+        border: Border(
+          bottom: BorderSide(
+            color: isDark 
+                ? Colors.white.withOpacity(0.05) 
+                : Colors.black.withOpacity(0.03),
+            width: 0.5,
+          ),
+        ),
+      ),
       child: Row(
         children: [
-          // タイトル
           Expanded(
             child: Text(
               isEditing ? 'TODOを編集' : '新しいTODOを追加',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
                 color: isDark ? Colors.white : Colors.black87,
                 decoration: TextDecoration.none,
+                letterSpacing: 0.3,
               ),
             ),
           ),
-          
-          // 閉じるボタン
           GestureDetector(
             onTap: _closeModal,
             child: Container(
-              width: 32,
-              height: 32,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: isDark 
-                    ? Colors.grey[800] 
-                    : Colors.grey[200],
-                shape: BoxShape.circle,
+                    ? Colors.white.withOpacity(0.06)
+                    : Colors.black.withOpacity(0.04),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
-                Icons.close_rounded,
-                size: 18,
-                color: isDark ? Colors.white : Colors.black54,
+                Icons.close,
+                size: 16,
+                color: isDark 
+                    ? Colors.white.withOpacity(0.8) 
+                    : Colors.black.withOpacity(0.7),
               ),
             ),
           ),
@@ -188,9 +218,9 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
     );
   }
 
-  Widget _buildContent(bool isDark) {
+  Widget _buildRefinedContent(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -198,14 +228,15 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
           Text(
             'タイトル',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white : Colors.black87,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
               decoration: TextDecoration.none,
+              letterSpacing: 0.2,
             ),
           ),
           const SizedBox(height: 8),
-          _buildIOSTextField(
+          _buildRefinedTextField(
             controller: _titleController,
             focusNode: _titleFocusNode,
             placeholder: 'TODOのタイトルを入力',
@@ -221,14 +252,15 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
           Text(
             '説明（オプション）',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white : Colors.black87,
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
               decoration: TextDecoration.none,
+              letterSpacing: 0.2,
             ),
           ),
           const SizedBox(height: 8),
-          _buildIOSTextField(
+          _buildRefinedTextField(
             controller: _descriptionController,
             focusNode: _descriptionFocusNode,
             placeholder: '詳細な説明を入力',
@@ -238,14 +270,12 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
               _saveTodo();
             },
           ),
-          
-          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildIOSTextField({
+  Widget _buildRefinedTextField({
     required TextEditingController controller,
     required FocusNode focusNode,
     required String placeholder,
@@ -253,92 +283,86 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
     int maxLines = 1,
     Function(String)? onSubmitted,
   }) {
-    // 複数行の場合は独自のプレースホルダーを実装
-    if (maxLines > 1) {
-      return Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF3A3A3C) : const Color(0xFFF2F2F7),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-            width: 0.5,
-          ),
-        ),
-        child: Stack(
-          children: [
-            // テキストフィールド（プレースホルダーなし）
-            CupertinoTextField(
-              controller: controller,
-              focusNode: focusNode,
-              maxLines: maxLines,
-              onSubmitted: onSubmitted,
-              textAlignVertical: TextAlignVertical.top,
-              style: TextStyle(
-                fontSize: 16,
-                color: isDark ? Colors.white : Colors.black87,
-                height: 1.2, // プレースホルダーと同じline-heightを指定
-              ),
-              placeholder: null, // プレースホルダーを無効化
-              decoration: const BoxDecoration(),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-            ),
-            // カスタムプレースホルダー（ValueListenableBuilderで監視）
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: controller,
-              builder: (context, value, child) {
-                // テキストが空の場合のみ表示
-                if (value.text.isEmpty) {
-                  return Positioned(
-                    left: 16,
-                    top: 18, // テキストの実際の描画位置に合わせて微調整
-                    child: IgnorePointer(
-                      child: Text(
-                        placeholder,
-                        style: TextStyle(
-                          color: isDark ? Colors.grey[400] : Colors.grey[500],
-                          fontSize: 16,
-                          decoration: TextDecoration.none,
-                          height: 1.2, // line-heightを明示的に指定
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
-        ),
-      );
-    }
-    
-    // 単一行の場合は従来通り
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF3A3A3C) : const Color(0xFFF2F2F7),
-        borderRadius: BorderRadius.circular(10),
+        color: isDark 
+            ? Colors.white.withOpacity(0.03)
+            : Colors.black.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+          color: isDark 
+              ? Colors.white.withOpacity(0.05)
+              : Colors.black.withOpacity(0.03),
           width: 0.5,
         ),
       ),
-      child: CupertinoTextField(
+      child: maxLines > 1 ? Stack(
+        children: [
+          // テキストフィールド（プレースホルダーなし）
+          CupertinoTextField(
+            controller: controller,
+            focusNode: focusNode,
+            maxLines: maxLines,
+            onSubmitted: onSubmitted,
+            textAlignVertical: TextAlignVertical.top,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: isDark ? Colors.white : Colors.black87,
+              height: 1.3,
+              letterSpacing: 0.2,
+            ),
+            placeholder: null,
+            decoration: const BoxDecoration(),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+          // カスタムプレースホルダー
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller,
+            builder: (context, value, child) {
+              if (value.text.isEmpty) {
+                return Positioned(
+                  left: 16,
+                  top: 16,
+                  child: IgnorePointer(
+                    child: Text(
+                      placeholder,
+                      style: TextStyle(
+                        color: isDark ? Colors.grey[600] : Colors.grey[500],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none,
+                        height: 1.3,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
+      ) : CupertinoTextField(
         controller: controller,
         focusNode: focusNode,
         maxLines: maxLines,
         onSubmitted: onSubmitted,
         textAlignVertical: TextAlignVertical.center,
         style: TextStyle(
-          fontSize: 16,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
           color: isDark ? Colors.white : Colors.black87,
+          letterSpacing: 0.2,
         ),
         placeholder: placeholder,
         placeholderStyle: TextStyle(
-          color: isDark ? Colors.grey[400] : Colors.grey[500],
-          fontSize: 16,
+          color: isDark ? Colors.grey[600] : Colors.grey[500],
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
         ),
         decoration: const BoxDecoration(),
         padding: const EdgeInsets.symmetric(
@@ -349,14 +373,27 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
     );
   }
 
-  Widget _buildFooter(bool isDark) {
+  Widget _buildRefinedFooter(bool isDark) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      decoration: BoxDecoration(
+        color: isDark 
+            ? Colors.white.withOpacity(0.005)
+            : Colors.black.withOpacity(0.002),
+        border: Border(
+          top: BorderSide(
+            color: isDark 
+                ? Colors.white.withOpacity(0.03) 
+                : Colors.black.withOpacity(0.02),
+            width: 0.5,
+          ),
+        ),
+      ),
       child: Row(
         children: [
           // キャンセルボタン
           Expanded(
-            child: _buildIOSButton(
+            child: _buildRefinedButton(
               text: 'キャンセル',
               onPressed: _isLoading ? null : _closeModal,
               isPrimary: false,
@@ -368,7 +405,7 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
           
           // 保存ボタン
           Expanded(
-            child: _buildIOSButton(
+            child: _buildRefinedButton(
               text: isEditing ? '更新' : '追加',
               onPressed: _isLoading ? null : _saveTodo,
               isPrimary: true,
@@ -381,7 +418,7 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
     );
   }
 
-  Widget _buildIOSButton({
+  Widget _buildRefinedButton({
     required String text,
     required VoidCallback? onPressed,
     required bool isPrimary,
@@ -389,28 +426,43 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
     bool isLoading = false,
   }) {
     final Color backgroundColor = isPrimary
-        ? const Color(0xFF007AFF) // iOS Blue
-        : (isDark ? Colors.grey[800]! : Colors.grey[200]!);
+        ? const Color(0xFF007AFF)
+        : (isDark 
+            ? Colors.white.withOpacity(0.05) 
+            : Colors.black.withOpacity(0.03));
         
     final Color textColor = isPrimary
         ? Colors.white
-        : (isDark ? Colors.white : Colors.black87);
+        : (isDark ? Colors.white.withOpacity(0.9) : Colors.black.withOpacity(0.8));
 
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        height: 50,
+        height: 44,
         decoration: BoxDecoration(
           color: onPressed == null 
               ? backgroundColor.withOpacity(0.5) 
               : backgroundColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
+          border: !isPrimary ? Border.all(
+            color: isDark 
+                ? Colors.white.withOpacity(0.06) 
+                : Colors.black.withOpacity(0.04),
+            width: 0.5,
+          ) : null,
+          boxShadow: isPrimary ? [
+            BoxShadow(
+              color: const Color(0xFF007AFF).withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
         ),
         child: Center(
           child: isLoading
               ? SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 16,
+                  height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -421,12 +473,13 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
               : Text(
                   text,
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: onPressed == null 
                         ? textColor.withOpacity(0.5) 
                         : textColor,
                     decoration: TextDecoration.none,
+                    letterSpacing: 0.2,
                   ),
                 ),
         ),
@@ -492,18 +545,11 @@ class _IOSStyleTodoModalState extends State<IOSStyleTodoModal>
   }
 
   void _showError(String message) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('エラー'),
-        content: Text(message),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+    showRefinedErrorModal(
+      context,
+      title: 'エラー',
+      message: message,
+      confirmText: 'OK',
     );
   }
 }

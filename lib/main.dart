@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/todo_service.dart';
+import 'services/design_mode_service.dart';
 import 'screens/macos_style_screen.dart';
 
 /// Flutter デスクトップ TODOアプリのメインエントリポイント
@@ -16,9 +17,13 @@ class TodoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      // TodoServiceをアプリ全体で利用可能にする
-      create: (context) => TodoService(),
+    return MultiProvider(
+      providers: [
+        // TodoServiceをアプリ全体で利用可能にする
+        ChangeNotifierProvider(create: (context) => TodoService()),
+        // デザインモードサービスを追加
+        ChangeNotifierProvider(create: (context) => DesignModeService()),
+      ],
       child: MaterialApp(
         title: 'TODO Manager - macOS Style',
         debugShowCheckedModeBanner: false,

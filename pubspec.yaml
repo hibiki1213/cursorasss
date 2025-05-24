@@ -48,6 +48,7 @@ dependencies:
 
   # ユーティリティ
   intl: ^0.20.1 # 日付フォーマット
+  shared_preferences: ^2.3.4 # 設定の永続化
 
 dev_dependencies:
   flutter_test:
